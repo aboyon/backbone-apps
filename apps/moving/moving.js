@@ -3,6 +3,7 @@
 // a  simple list over the localStore go to the backbone page and check the 
 // examples
 
+var MOVING = false;
 
 $(function(){
     
@@ -32,14 +33,13 @@ $(function(){
     
     var MovableObjectView = Backbone.View.extend({
         
-        events: {
-            'mousedown .movableObj_active': 'draggingStart',
-            'mouseover .movableObj_active': 'mousemove'
-        },
-        
         initialize: function() {
             $('#app_context').mousemove(this, this.mousemove).mouseup(this, this.mouseup);
             this.model.bind('change', this.updateView, this);
+        },
+        
+        events: {
+            'mousedown .movableObj_active' : 'draggingStart'
         },
         
         updateView: function() {
@@ -47,29 +47,28 @@ $(function(){
                 left:       this.model.get('x'),
                 top:        this.model.get('y'),
                 width:      this.model.get('width'),
-                height:     this.model.get('height')
+                height:     this.model.get('height') 
             });
         },
         
         render: function() {
-            var shapeHTML = '<div id="'+this.model.get('cid')+'" class="movableObj_active" ';
-                    shapeHTML+= ' style="position: absolute; ';
-                    shapeHTML+= ' left: ' + this.model.get("x")+ 'px;';
-                    shapeHTML+= ' top: ' + this.model.get("y")+ 'px;';
-                    shapeHTML+= ' width: ' + this.model.get("width")+ 'px;';
-                    shapeHTML+= ' height: ' + this.model.get("height")+ 'px;';
-                    shapeHTML+= '"></div>';
-            $('#app_context').append(shapeHTML);
+            $('#app_context').append(this.el);
+            $(this.el).html('<div class="movableObj_active""/>')
+                .css({
+                    position: 'absolute', 
+                    padding: '10px',
+                    height: this.model.get("height")+'px',
+                    width: this.model.get("width")+'px'
+                });
+            this.updateView();
             return this;
         },
         
-        mousemove: function(e) {
-          alert('paso');
-        },
-        
         draggingStart: function (e) {
-            alert('y si');
-            this.dragging = true;
+            this.dragging = MOVING = true;
+            $(this.el).css({
+                opacity: 0.2
+            });
             this.initialX = e.pageX - this.model.get('x');
             this.initialY = e.pageY - this.model.get('y');
         },
@@ -77,7 +76,10 @@ $(function(){
         mouseup: function (e) {
             if (!e.data) return;
             var self = e.data;
-            self.dragging = false;
+            self.dragging = MOVING = false;
+            $(self.el).css({
+                opacity: 1.0
+            });
         },
         
         mousemove: function(e) {
@@ -95,7 +97,7 @@ $(function(){
     var MovingAreaView = Backbone.View.extend({
         
         initialize: function() {
-          this.collection.bind('add', this.adding, this);  
+          this.collection.bind('add', this.adding, this);
         },
         
         views: {},
@@ -112,16 +114,12 @@ $(function(){
                 model: m,
                 id:'view_' + m.cid
             }).render();
-            $('#mouse_cords').append(' ' +Shapes.length + ' elements created')
+            $('#mouse_cords').append(' ' +this.collection.length + ' elements created');
         },
         
         mouseover:function(e) {
             $(this.el).addClass('focus_app_context');
-            if (this.dragging) {
-                $('#mouse_cords').html('Creating object from X: (' + e.pageX + '), Y: ('+e.pageY+')');
-            } else {
-                $('#mouse_cords').html('X: (' + e.pageX + '), Y: ('+e.pageY+')');
-            }
+            $('#mouse_cords').html('X: (' + e.pageX + '), Y: ('+e.pageY+')');
         },
         
         mousedown: function(e) {
@@ -131,16 +129,17 @@ $(function(){
         },
         
         mouseup: function(e) {
-          var config = {
-                x: (e.pageX-this.originalX<0) ? e.pageX : this.originalX,
-              	y: (e.pageY-this.originalY<0) ? e.pageY : this.originalY,
-                width: Math.abs(e.pageX-this.originalX),
-                height: Math.abs(e.pageY-this.originalY)
-            };
-            if (config.width > 0 && config.height > 0) {
-                this.adding(new Shape(config));
-            }
-          return false;
+          if (MOVING == false) {
+                var config = {
+                    x: (e.pageX-this.originalX<0) ? e.pageX : this.originalX,
+                    y: (e.pageY-this.originalY<0) ? e.pageY : this.originalY,
+                    width: Math.abs(e.pageX-this.originalX),
+                    height: Math.abs(e.pageY-this.originalY)
+                };
+                if (config.width > 0 && config.height > 0) {
+                    this.collection.add(new Shape(config));
+                }
+          }
         },
         
         mouseout:function(ev) {
@@ -150,8 +149,9 @@ $(function(){
     });
     
     var MovingArea = new MovingAreaView({
+        id: 'app_context',
         el: $('#app_context'),
-        collection: ShapeList
+        collection: Shapes
     });
    
 });

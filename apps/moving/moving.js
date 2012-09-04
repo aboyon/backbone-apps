@@ -1,4 +1,11 @@
-// Well... this is a backbone application
+/**
+ * @author David Silveira <jdsilveira@gmail.com>
+ * @see http://davidsilveira.me/backbone-apps/
+ * @example 
+ * @desc just a backbone example to draw squares and move them into a moving/drawing area
+ */
+
+// // Well... this is a backbone application
 // this is not a todo application... if you want to learn how to make
 // a  simple list over the localStore go to the backbone page and check the 
 // examples
@@ -33,8 +40,14 @@ $(function(){
     
     var MovableObjectView = Backbone.View.extend({
         
+        limitPadding: 10,
+        
         initialize: function() {
-            $('#app_context').mousemove(this, this.mousemove).mouseup(this, this.mouseup);
+            $(this.options.ns).mousemove(this, this.mousemove).mouseup(this, this.mouseup);
+            this.min_limit_x = $(this.options.ns).position().left;
+            this.min_limit_y = $(this.options.ns).position().top;
+            this.max_limit_x = parseInt($(this.options.ns).outerWidth() + this.min_limit_x - this.model.get('width') - 20);
+            this.max_limit_y = parseInt($(this.options.ns).outerHeight() + this.min_limit_y - this.model.get('height') - 20);
             this.model.bind('change', this.updateView, this);
         },
         
@@ -52,7 +65,7 @@ $(function(){
         },
         
         render: function() {
-            $('#app_context').append(this.el);
+            $(this.options.ns).append(this.el);
             $(this.el).html('<div class="movableObj_active""/>')
                 .css({
                     position: 'absolute', 
@@ -86,8 +99,18 @@ $(function(){
             if (!e.data) return;
             var self = e.data;
             if (self.dragging) {
-                self.model.setPosition(e.pageX - self.initialX, e.pageY - self.initialY);
+                if (self.checkposition(e.pageX - self.initialX,e.pageY - self.initialY)) {
+                    self.model.setPosition(e.pageX - self.initialX, e.pageY - self.initialY);
+                }                
             }
+        },
+        
+        checkposition: function(x,y) {
+            if (x < this.min_limit_x) return false;
+            if (x > this.max_limit_x) return false;
+            if (y < this.min_limit_y) return false;
+            if (y > this.max_limit_y) return false;
+            return true;
         }
         
     });
@@ -112,7 +135,8 @@ $(function(){
         adding: function(m) {
             this.views[m.cid] = new MovableObjectView({
                 model: m,
-                id:'view_' + m.cid
+                id:'view_' + m.cid,
+                ns: this.el
             }).render();
             $('#mouse_cords').append(' ' +this.collection.length + ' elements created');
         },

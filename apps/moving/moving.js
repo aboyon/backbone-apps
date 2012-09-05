@@ -19,7 +19,8 @@ $(function(){
            x: 0,
            y: 0,
            width: 200,
-           height: 200
+           height: 200,
+           active: false
        },
        
        setPosition: function(x,y) {
@@ -28,15 +29,71 @@ $(function(){
        
        setSize: function(w,h) {
            this.set({width: w+'px', height: h+'px'});
+       },
+       
+       setStatus: function(status) {
+           this.set({ active:  status });
        }
        
     });
     
     var ShapeList = Backbone.Collection.extend({
-        model: Shape
+        model: Shape,
+        
+        deactivateAll: function() {
+            this.each(function(shape) {
+              shape.set({ active: false });
+            });
+        }
     });
 
     var Shapes = new ShapeList();
+    
+    var Context = Backbone.View.extend({
+        
+        events: {
+          'keydown': 'keydown'  
+        },
+        
+        preventDefaultBehavior: function(status) {
+            this.prevent_default = status;
+        },
+        
+        keydown: function(e) {
+            if (this.areaActive!=null) {
+                e.preventDefault();
+                var activeShape = this.areaActive.collection.filter(function(shape){
+                    return shape.get('active') === true;
+                });
+
+                console.log(this.areaActive.collection.size());
+
+                if (activeShape) {
+                    var shape = activeShape[0];
+                    var currentX = shape.get('x');
+                    var currentY = shape.get('y');
+                    console.log('X:' + currentX);
+                    console.log('Y:' + currentY);
+                    switch(e.keyCode) {
+                        case 37: 
+                            shape.setPosition(currentX - 10, currentY);
+                            break;
+                        case 38: 
+                            shape.setPosition(currentX, currentY - 10);
+                            break;
+                        case 39: 
+                            shape.setPosition(currentX + 10, currentY);
+                            break;
+                        case 40: 
+                            shape.setPosition(currentX, currentY + 10);
+                            break;
+                    }
+                }
+            }
+        }
+        
+    });
+    
     
     var MovableObjectView = Backbone.View.extend({
         
@@ -52,7 +109,15 @@ $(function(){
         },
         
         events: {
-            'mousedown .movableObj_active' : 'draggingStart'
+            'mousedown .movableObj_active' : 'draggingStart',
+            'click .movableObj_active' : 'click'
+        },
+        
+        click: function(e) {
+            world.preventDefaultBehavior(true);
+            Shapes.deactivateAll();
+            this.model.setStatus(true);
+            this.updateView();
         },
         
         updateView: function() {
@@ -62,11 +127,20 @@ $(function(){
                 width:      this.model.get('width'),
                 height:     this.model.get('height') 
             });
+            if (this.model.get('active') == true) {
+                $(this.el).addClass('shape_selected');
+            } else {
+                $(this.el).removeClass('shape_selected');
+            }
         },
         
         render: function() {
+            $('.shape_selected').removeClass('shape_selected');
             $(this.options.ns).append(this.el);
-            $(this.el).html('<div class="movableObj_active""/>')
+            $(this.el)
+                .addClass('shape')
+                .attr({ tabindex: 0 })
+                .html('<div class="movableObj_active""/>')
                 .css({
                     position: 'absolute', 
                     padding: '10px',
@@ -129,7 +203,8 @@ $(function(){
             "mousemove" : "mouseover",
             "mousedown" : "mousedown",
             "mouseout"  : "mouseout",
-            "mouseup"   : "mouseup"
+            "mouseup"   : "mouseup",
+            "click"     : "click"
         },
         
         adding: function(m) {
@@ -142,6 +217,8 @@ $(function(){
         },
         
         mouseover:function(e) {
+            this.options.active = true;
+            world.areaActive = this;
             $(this.el).addClass('focus_app_context');
             $('#mouse_cords').html('X: (' + e.pageX + '), Y: ('+e.pageY+')');
         },
@@ -167,15 +244,24 @@ $(function(){
         },
         
         mouseout:function(ev) {
+            this.options.active = false;
+            world.areaActive = null;
+            Shapes.deactivateAll();
             $(this.el).removeClass('focus_app_context');
         }
         
     });
     
+    var world = new Context({
+       el: $(document)
+    });
+    
     var MovingArea = new MovingAreaView({
         id: 'app_context',
         el: $('#app_context'),
-        collection: Shapes
+        collection: Shapes,
+        world: world,
+        active: true
     });
    
 });

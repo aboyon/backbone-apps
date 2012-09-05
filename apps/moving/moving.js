@@ -121,12 +121,14 @@ $(function(){
         },
         
         updateView: function() {
-            $(this.el).css({
-                left:       this.model.get('x'),
-                top:        this.model.get('y'),
-                width:      this.model.get('width'),
-                height:     this.model.get('height') 
-            });
+            if (this.checkposition()) {
+                $(this.el).css({
+                    left:       this.model.get('x'),
+                    top:        this.model.get('y'),
+                    width:      this.model.get('width'),
+                    height:     this.model.get('height') 
+                });
+            }
             if (this.model.get('active') == true) {
                 $(this.el).addClass('shape_selected');
             } else {

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>David Silveira - Moving elements with Backbone.js</title>
+    <title>David Silveira - Draw and Move elements with Backbone.js</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="keywords" content="Moving, drawing, elements, backbone.js, underscore.js">
     <meta name="description" content="Moving and drawing elements with backbone.js and underscore.js. How to draw squares dynamically into a drawing area and then move them">
@@ -87,7 +87,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">Backbone.js - Moving elements by David Silveira</a>
+          <a class="brand" href="#">Backbone.js - Draw and Move elements by David Silveira</a>
           <div class="nav-collapse">
             <ul class="nav">
               <li><a href="index.html">Home</a></li>
@@ -102,12 +102,91 @@
 
     <div class="container">
         <h1>Description</h1>
-        [ about this example ]
+        <p>
+            Well, this example aims to show you (in a easy way) how to draw and move 
+        shapes into a limited area (not throw them in the body), check the boundaries and restrict
+        their position according to the context where they are, using <a href="http://backbonejs.org/" title="Backbone.js" target="_blank">Backbone.js</a>. Besides, 
+        this is my first application using <a href="http://backbonejs.org/" title="Backbone.js" target="_blank">Backbone.js</a> so, perhaps you might find errors or improve
+        how the things are made. If do, please feel free to send the improvements and collaborate with
+        this project :).
+        </p>
+        <div class="row show-grid">
+            <div class="span5">
+            <a href="http://backbonejs.org/" title="Backbone.js" target="_blank">Backbone.js</a> component used:
+            <ul>
+                <li>ShapesList is a <a href="http://backbonejs.org/#Collection" title="Backbone.js Collection" target="_blank">Backbone.Collection</a></li>
+                <li>Shapes a <a href="http://backbonejs.org/#Model" title="Backbone.js model" target="_blank">Backbone.Model</a>.</li>
+                <li>Context, MovableObjectView, MovingAreaView are <a href="http://backbonejs.org/#View" title="Backbone.js View" target="_blank">Backbone.View</a>.</li>
+            </ul>
+            </div>
+            <div class="span5">
+                <strong>Usage</strong><br />
+                <ul>
+                    <li>Move the mouse over the &quot;Draw and moving area&quot; </li>
+                    <li>Once the coursor change, click and drag and then release the mouse <span class="label label-warning">Beta!</span> </li>
+                    <li>A square will be drawn </li>
+                    <li>Drag and drop the squares or select by clicking them and move using the arrow keys. <span class="label label-warning">Beta!</span></li>
+                </ul>
+            </div>
+        </div>
+        
         <hr>
-        <h1>Moving area <small id="mouse_cords"></small></h1>
+        <h1>Draw & Moving area <small id="mouse_cords"></small></h1>
         <div id="app_context"></div>
         <hr />
-        <h1>Instalation</h1>
+        <h1>Source code</h1>
+      
+      <h3>HTML Markup</h3>
+      <p>First, define the drawing/moving areas for your shapes</p>
+
+<pre class="pretttyprint linenums">
+          &lt;div id="app_context"&gt;&lt;/div&gt;</pre>
+<pre class="prettyprint linenums">
+          &lt;script type="text/javascript" src="apps/moving/moving.js"&gt;&lt;/script&gt;
+          ...
+          or
+          ...
+          &lt;script type="text/javascript" src="apps/moving/moving.min.js"&gt;&lt;/script&gt;
+          ...
+         </pre>
+      <p>I've included the minified version of the application. If you want to see the original (unpacked) version <a href="https://github.com/aboyon/backbone-apps/blob/master/apps/moving/moving.js" target="_blank">click here</a></p>
+      <h3>Javascript code</h3>
+      <p>This is the default setup</p>
+<pre class="prettyprint linenums">
+        var world = new Context({
+            el: $(document)
+        });
+    
+        var MovingArea = new MovingAreaView({
+            id: 'app_context',
+            el: $('#app_context'),
+            collection: Shapes,
+            world: world,
+            active: true
+        });</pre>
+      <hr>
+      <h1>Download</h1>
+      <p>&nbsp;</p>
+      <h3>Using Github</h3>
+      <p>Awesome! this is the best way to download this small application.</p>
+      <pre class="prettyprint linenums">
+        git clone git@github.com:aboyon/backbone-apps.git</pre>
+      
+      <h3>Download the ZIP file</h3>
+      <p>
+          If you're not familiar usign console commands or using GitHub, you can click in <a href="http://davidsilveira.me/downloads/backbone-app-moving.zip">this link</a> and download this file in a zip format.
+      </p>
+      
+      <hr>
+      <h1>About this document &amp; the author</h1>
+      <p>
+          Not too much to say about these things. Just a few comments. <br />
+          About this document, please if you find a grammar/translation error or a technical mistake, please
+          let me know writing an email to contact@davidsilveira.me.
+          You can use, improve, and distribute this application as you wish. Use under licence <a href="http://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GPL3</a>
+          About me, you already know my name, David Silveira, I'm from Argentina. I'm always looking for new
+          job opportunities.
+      </p>
         <hr />
         <footer>
             <p>
@@ -115,11 +194,10 @@
                 <a href="http://twitter.github.com/bootstrap" target="_blank">Twitter Bootstrap</a>
                 &amp; <a href="http://symfony.com" target="_blank">Symfony2</a> and inspired in
                 &quot;Hakuna Matata&quot; philosophy :)
-                <!--
+                This application was made using <a href="http://backbonejs.org/" title="Backbone.js" target="_blank">Backbone.js 0.9.2</a>
                 <br>
                 <a href="https://twitter.com/aboyon" class="twitter-follow-button" data-show-count="false">Follow @aboyon</a>
                 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-                -->
             </p>
           </footer>
 
@@ -129,5 +207,21 @@
     
     <script type="text/javascript" src="apps/moving/moving.js"></script>
     <script src="js/layout/prettify.js"></script>
+    
+    
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7541162-3']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+    
   </body>
 </html>

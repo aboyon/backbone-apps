@@ -10,4 +10,4 @@ Current applications
 
 These are the applications included in this repo.
 
-* [.moving.js](http://davidsilveira.me/scripts/backbone-apps/moving.html)
+* [.moving.js](http://static.davidsilveira.me/examples/backbone-apps/moving.html)
